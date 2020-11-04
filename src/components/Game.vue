@@ -5,7 +5,7 @@
     </header>
     <main>
       <div class="left-sidebar"></div>
-      <canvas ref="canvas"></canvas>
+      <div class="map"></div>
       <div class="right-sidebar"></div>
     </main>
     <footer>
@@ -15,28 +15,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, Ref, ref } from 'vue';
-import Renderer from '../classes/Renderer';
-
 export default {
-  setup() {
-    const canvas: Ref<HTMLCanvasElement | null> = ref(null);
-
-    let renderer: Renderer;
-
-    onMounted(() => {
-      if (canvas.value) {
-        renderer = new Renderer(canvas.value);
-        renderer.render();
-      } else {
-        throw new Error('No canvas!');
-      }
-    });
-
-    return {
-      canvas,
-    };
-  },
 };
 </script>
 
@@ -73,8 +52,9 @@ main {
   flex-grow: 1;
 }
 
-canvas {
+.map {
   flex-grow: 1;
+  background-image: url('../assets/lunarrock_d.png');
 }
 
 .left-sidebar, .right-sidebar {
