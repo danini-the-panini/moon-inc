@@ -28,6 +28,7 @@
 
 <script lang="ts">
 import {
+  onMounted,
   reactive,
   ref,
 } from 'vue';
@@ -39,7 +40,12 @@ interface Vehicleish {
   x: number;
   y: number;
   orientation: number;
+  targetX: number;
+  targetY: number;
+  moving: boolean;
 }
+
+const SPEED = 0.5;
 
 export default {
   components: {
@@ -51,6 +57,9 @@ export default {
       x: 100,
       y: 200,
       orientation: 30,
+      targetX: 0,
+      targetY: 0,
+      moving: false,
     });
 
     const selectedVehicleId = ref(-1);
@@ -63,16 +72,48 @@ export default {
       selectedVehicleId.value = -1;
     };
 
+    const update = (delta: number) => {
+      const t1 = new Date();
+
+      if (vehicle.moving) {
+        const dx = vehicle.targetX - vehicle.x;
+        const dy = vehicle.targetY - vehicle.y;
+
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const speed = SPEED * delta;
+
+        if (len >= speed) {
+          const nx = dx / len;
+          const ny = dy / len;
+
+          vehicle.x += nx * speed;
+          vehicle.y += ny * speed;
+        } else {
+          vehicle.x = vehicle.targetX;
+          vehicle.y = vehicle.targetY;
+          vehicle.moving = false;
+        }
+      }
+
+      requestAnimationFrame(() => {
+        const t2 = new Date();
+        update(t2.getTime() - t1.getTime());
+      });
+    };
+
     const actionMap = (event: MouseEvent) => {
       if (selectedVehicleId.value !== -1) {
         const dx = event.offsetX - vehicle.x;
         const dy = event.offsetY - vehicle.y;
 
         vehicle.orientation = rad2deg(Math.atan2(-dx, dy));
-        vehicle.x = event.offsetX;
-        vehicle.y = event.offsetY;
+        vehicle.targetX = event.offsetX;
+        vehicle.targetY = event.offsetY;
+        vehicle.moving = true;
       }
     };
+
+    onMounted(() => update(0));
 
     return {
       vehicle,
@@ -122,9 +163,6 @@ main {
   flex-grow: 1;
   background-image: url('../assets/lunarrock_d.png');
   position: relative;
-}
-
-.vehicle {
 }
 
 .left-sidebar, .right-sidebar {
