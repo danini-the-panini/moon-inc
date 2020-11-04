@@ -5,7 +5,19 @@
     </header>
     <main>
       <div class="left-sidebar"></div>
-      <div class="map"></div>
+      <div
+        class="map"
+        @click.left.stop="clickMap"
+        @click.right.stop.prevent="actionMap"
+      >
+        <Vehicle
+          :x="vehicle.x"
+          :y="vehicle.y"
+          :orientation="vehicle.orientation"
+          :selected="vehicle.id === selectedVehicleId"
+          @click.left.stop="selectVehicle"
+        />
+      </div>
       <div class="right-sidebar"></div>
     </main>
     <footer>
@@ -15,7 +27,57 @@
 </template>
 
 <script lang="ts">
+import {
+  computed,
+  reactive,
+  ref,
+} from 'vue';
+import Vehicle from '@/components/Vehicle.vue';
+
+interface Vehicleish {
+  id: number;
+  x: number;
+  y: number;
+  orientation: number;
+}
+
 export default {
+  components: {
+    Vehicle,
+  },
+  setup() {
+    const vehicle = reactive({
+      id: 1,
+      x: 100,
+      y: 200,
+      orientation: 30,
+    });
+
+    const selectedVehicleId = ref(-1);
+
+    const selectVehicle = () => {
+      selectedVehicleId.value = vehicle.id;
+    };
+
+    const clickMap = () => {
+      selectedVehicleId.value = -1;
+    };
+
+    const actionMap = (event: MouseEvent) => {
+      if (selectedVehicleId.value !== -1) {
+        vehicle.x = event.offsetX;
+        vehicle.y = event.offsetY;
+      }
+    };
+
+    return {
+      vehicle,
+      selectVehicle,
+      selectedVehicleId,
+      clickMap,
+      actionMap,
+    };
+  },
 };
 </script>
 
@@ -55,6 +117,10 @@ main {
 .map {
   flex-grow: 1;
   background-image: url('../assets/lunarrock_d.png');
+  position: relative;
+}
+
+.vehicle {
 }
 
 .left-sidebar, .right-sidebar {
