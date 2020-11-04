@@ -28,11 +28,11 @@
 
 <script lang="ts">
 import {
-  computed,
   reactive,
   ref,
 } from 'vue';
 import Vehicle from '@/components/Vehicle.vue';
+import rad2deg from '@/functions/rad2deg';
 
 interface Vehicleish {
   id: number;
@@ -65,6 +65,10 @@ export default {
 
     const actionMap = (event: MouseEvent) => {
       if (selectedVehicleId.value !== -1) {
+        const dx = event.offsetX - vehicle.x;
+        const dy = event.offsetY - vehicle.y;
+
+        vehicle.orientation = rad2deg(Math.atan2(-dx, dy));
         vehicle.x = event.offsetX;
         vehicle.y = event.offsetY;
       }
