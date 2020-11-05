@@ -2,8 +2,8 @@
   <Sprite
     :x="x"
     :y="y"
-    width="48"
-    height="48"
+    :width="48"
+    :height="48"
     :orientation="orientation"
     :selected="selected"
     :image="image"
