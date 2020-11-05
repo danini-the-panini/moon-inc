@@ -24,7 +24,11 @@
           @click.left.stop="selectBuilding"
         />
       </div>
-      <div class="right-sidebar"></div>
+      <div class="right-sidebar">
+        <span v-if="selectedEntityId !== -1">
+          Selected: {{selectedEntityId}}
+        </span>
+      </div>
     </main>
     <footer>
       © 2020 sourlemon {&gt;.&lt;}
