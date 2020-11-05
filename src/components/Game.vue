@@ -14,8 +14,14 @@
           :x="vehicle.x"
           :y="vehicle.y"
           :orientation="vehicle.orientation"
-          :selected="vehicle.id === selectedVehicleId"
+          :selected="vehicle.id === selectedEntityId"
           @click.left.stop="selectVehicle"
+        />
+        <Building
+          :x="building.x"
+          :y="building.y"
+          :selected="building.id === selectedEntityId"
+          @click.left.stop="selectBuilding"
         />
       </div>
       <div class="right-sidebar"></div>
@@ -33,6 +39,7 @@ import {
   ref,
 } from 'vue';
 import Vehicle from '@/components/Vehicle.vue';
+import Building from '@/components/Building.vue';
 import rad2deg from '@/functions/rad2deg';
 
 interface Vehicleish {
@@ -45,11 +52,11 @@ interface Vehicleish {
   moving: boolean;
 }
 
-const SPEED = 0.5;
+const SPEED = 0.3;
 
 export default {
   components: {
-    Vehicle,
+    Vehicle, Building,
   },
   setup() {
     const vehicle = reactive({
@@ -62,14 +69,24 @@ export default {
       moving: false,
     });
 
-    const selectedVehicleId = ref(-1);
+    const building = reactive({
+      id: 2,
+      x: 200,
+      y: 350,
+    });
+
+    const selectedEntityId = ref(-1);
 
     const selectVehicle = () => {
-      selectedVehicleId.value = vehicle.id;
+      selectedEntityId.value = vehicle.id;
+    };
+
+    const selectBuilding = () => {
+      selectedEntityId.value = building.id;
     };
 
     const clickMap = () => {
-      selectedVehicleId.value = -1;
+      selectedEntityId.value = -1;
     };
 
     const update = (delta: number) => {
@@ -102,7 +119,7 @@ export default {
     };
 
     const actionMap = (event: MouseEvent) => {
-      if (selectedVehicleId.value !== -1) {
+      if (selectedEntityId.value !== -1) {
         const dx = event.offsetX - vehicle.x;
         const dy = event.offsetY - vehicle.y;
 
@@ -117,8 +134,10 @@ export default {
 
     return {
       vehicle,
+      building,
       selectVehicle,
-      selectedVehicleId,
+      selectBuilding,
+      selectedEntityId,
       clickMap,
       actionMap,
     };
@@ -161,7 +180,7 @@ main {
 
 .map {
   flex-grow: 1;
-  background-image: url('../assets/lunarrock_d.png');
+  background-image: url('../assets/lunar-rock.png');
   position: relative;
 }
 

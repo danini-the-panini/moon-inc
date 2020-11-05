@@ -2,9 +2,9 @@
   <Sprite
     :x="x"
     :y="y"
-    width="48"
-    height="48"
-    :orientation="orientation"
+    width="256"
+    height="256"
+    :orientation="0"
     :selected="selected"
     :image="image"
   />
@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import Sprite from '@/components/Sprite.vue';
-import * as Buggy from '@/assets/buggy.png';
+import * as Powerplant from '@/assets/powerplant.png';
 
 export default {
   components: { Sprite },
@@ -20,11 +20,10 @@ export default {
     selected: Boolean,
     x: Number,
     y: Number,
-    orientation: Number,
   },
   setup() {
     return {
-      image: Buggy,
+      image: Powerplant,
     };
   },
 };
