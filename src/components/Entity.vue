@@ -3,6 +3,7 @@
     :class="{ container: true, selected: selected }"
     :style="containerStyle">
     <div class="image" :style="imageStyle"></div>
+    <div v-if="selected && areaOfEffect > 0" class="aoe" :style="aoeStyle"></div>
   </div>
 </template>
 
@@ -18,6 +19,7 @@ export default {
     height: Number,
     orientation: Number,
     sprite: String,
+    areaOfEffect: Number,
   },
   setup(props: {
     selected: boolean;
@@ -27,6 +29,7 @@ export default {
     height: number;
     orientation: number;
     sprite: string;
+    areaOfEffect: number;
   }) {
     const containerStyle = computed(() => ({
       transform: `translate(-50%, -50%) translate(${props.x}px, ${props.y}px)`,
@@ -39,9 +42,15 @@ export default {
       backgroundImage: `url(${props.sprite})`,
     }));
 
+    const aoeStyle = computed(() => ({
+      width: `${props.areaOfEffect * 2}px`,
+      height: `${props.areaOfEffect * 2}px`,
+    }));
+
     return {
       containerStyle,
       imageStyle,
+      aoeStyle,
     };
   },
 };
@@ -74,5 +83,16 @@ export default {
   background-repeat: no-repeat;
   background-position: 50%;
   position: absolute;
+}
+
+.aoe {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid #00ff00;
+  pointer-events: none;
 }
 </style>

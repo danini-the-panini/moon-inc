@@ -42,30 +42,17 @@ import {
 import { v4 as uuid } from 'uuid';
 
 import Entity from '@/components/Entity.vue';
-import rad2deg from '@/functions/rad2deg';
 import Buggy from '@/assets/buggy.png';
 import Powerplant from '@/assets/powerplant.png';
 import SolarPanels from '@/assets/solar-panels.png';
-
-interface Entityish {
-  id: string;
-  name: string;
-  sprite: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  orientation: number;
-  targetX: number;
-  targetY: number;
-  moving: boolean;
-  canMove: boolean;
-}
+import BaseEntity from '@/classes/BaseEntity';
+import VehicleEntity from '@/classes/VehicleEntity';
+import BuildingEntity from '@/classes/BuildingEntity';
 
 const SPEED = 0.3;
 
-function indexById(array: Array<Entityish>) {
-  const map: Map<string, Entityish> = new Map();
+function indexById(array: Array<BaseEntity>) {
+  const map: Map<string, BaseEntity> = new Map();
 
   array.forEach((item) => {
     map.set(item.id, item);
@@ -80,22 +67,18 @@ export default {
   },
   setup() {
     const entities = reactive(indexById([
-      {
+      new VehicleEntity({
         sprite: Buggy,
         name: 'Buggy 1',
-        id: uuid(),
         x: 500,
         y: 500,
         width: 64,
         height: 64,
         orientation: 30,
-        targetX: 0,
-        targetY: 0,
-        moving: false,
-        canMove: true,
-      },
-      {
-        id: uuid(),
+        areaOfEffect: 0,
+        speed: SPEED,
+      }),
+      new VehicleEntity({
         sprite: Buggy,
         name: 'Buggy 2',
         x: 700,
@@ -103,44 +86,32 @@ export default {
         width: 64,
         height: 64,
         orientation: 160,
-        targetX: 0,
-        targetY: 0,
-        moving: false,
-        canMove: true,
-      },
-      {
+        areaOfEffect: 0,
+        speed: SPEED,
+      }),
+      new BuildingEntity({
         sprite: Powerplant,
         name: 'Power Plant',
-        id: uuid(),
         x: 256,
         y: 256,
         width: 256,
         height: 256,
-        orientation: 0,
-        targetX: 0,
-        targetY: 0,
-        moving: false,
-        canMove: false,
-      },
-      {
+        areaOfEffect: 384,
+      }),
+      new BuildingEntity({
         sprite: SolarPanels,
         name: 'Solar Panels',
-        id: uuid(),
         x: 512,
         y: 256,
         width: 128,
         height: 128,
-        orientation: 0,
-        targetX: 0,
-        targetY: 0,
-        moving: false,
-        canMove: false,
-      },
+        areaOfEffect: 0,
+      }),
     ]));
 
     const selectedEntityId: Ref<string | null> = ref(null);
 
-    const selectedEntity: ComputedRef<Entityish | null> = computed(() => {
+    const selectedEntity: ComputedRef<BaseEntity | null> = computed(() => {
       if (selectedEntityId.value === null) return null;
       return entities.get(selectedEntityId.value) || null;
     });
@@ -157,25 +128,7 @@ export default {
       const t1 = new Date();
 
       entities.forEach((entity) => {
-        if (entity.moving) {
-          const dx = entity.targetX - entity.x;
-          const dy = entity.targetY - entity.y;
-
-          const len = Math.sqrt(dx * dx + dy * dy);
-          const speed = SPEED * delta;
-
-          if (len >= speed) {
-            const nx = dx / len;
-            const ny = dy / len;
-
-            entity.x += nx * speed;
-            entity.y += ny * speed;
-          } else {
-            entity.x = entity.targetX;
-            entity.y = entity.targetY;
-            entity.moving = false;
-          }
-        }
+        entity.update(delta);
       });
 
       requestAnimationFrame(() => {
@@ -188,14 +141,8 @@ export default {
       if (selectedEntityId.value !== null) {
         const entity = selectedEntity.value;
 
-        if (entity !== null && entity.canMove) {
-          const dx = event.offsetX - entity.x;
-          const dy = event.offsetY - entity.y;
-
-          entity.orientation = rad2deg(Math.atan2(-dx, dy));
-          entity.targetX = event.offsetX;
-          entity.targetY = event.offsetY;
-          entity.moving = true;
+        if (entity !== null) {
+          entity.performActionOnMap(event.offsetX, event.offsetY);
         }
       }
     };
