@@ -10,23 +10,17 @@
         @click.left.stop="clickMap"
         @click.right.stop.prevent="actionMap"
       >
-        <Vehicle
-          :x="vehicle.x"
-          :y="vehicle.y"
-          :orientation="vehicle.orientation"
-          :selected="vehicle.id === selectedEntityId"
-          @click.left.stop="selectVehicle"
-        />
-        <Building
-          :x="building.x"
-          :y="building.y"
-          :selected="building.id === selectedEntityId"
-          @click.left.stop="selectBuilding"
+        <Entity
+          v-for="[id, entity] in entities"
+          :key="id"
+          v-bind="entity"
+          :selected="entity.id === selectedEntityId"
+          @click.left.stop="selectEntity(entity)"
         />
       </div>
       <div class="right-sidebar">
-        <span v-if="selectedEntityId !== -1">
-          Selected: {{selectedEntityId}}
+        <span v-if="selectedEntityId">
+          Selected: {{selectedEntity.name}}
         </span>
       </div>
     </main>
@@ -38,83 +32,151 @@
 
 <script lang="ts">
 import {
+  computed,
+  ComputedRef,
   onMounted,
   reactive,
+  Ref,
   ref,
 } from 'vue';
-import Vehicle from '@/components/Vehicle.vue';
-import Building from '@/components/Building.vue';
-import rad2deg from '@/functions/rad2deg';
+import { v4 as uuid } from 'uuid';
 
-interface Vehicleish {
-  id: number;
+import Entity from '@/components/Entity.vue';
+import rad2deg from '@/functions/rad2deg';
+import Buggy from '@/assets/buggy.png';
+import Powerplant from '@/assets/powerplant.png';
+import SolarPanels from '@/assets/solar-panels.png';
+
+interface Entityish {
+  id: string;
+  name: string;
+  sprite: string;
   x: number;
   y: number;
+  width: number;
+  height: number;
   orientation: number;
   targetX: number;
   targetY: number;
   moving: boolean;
+  canMove: boolean;
 }
 
 const SPEED = 0.3;
 
+function indexById(array: Array<Entityish>) {
+  const map: Map<string, Entityish> = new Map();
+
+  array.forEach((item) => {
+    map.set(item.id, item);
+  });
+
+  return map;
+}
+
 export default {
   components: {
-    Vehicle, Building,
+    Entity,
   },
   setup() {
-    const vehicle = reactive({
-      id: 1,
-      x: 100,
-      y: 200,
-      orientation: 30,
-      targetX: 0,
-      targetY: 0,
-      moving: false,
+    const entities = reactive(indexById([
+      {
+        sprite: Buggy,
+        name: 'Buggy 1',
+        id: uuid(),
+        x: 500,
+        y: 500,
+        width: 64,
+        height: 64,
+        orientation: 30,
+        targetX: 0,
+        targetY: 0,
+        moving: false,
+        canMove: true,
+      },
+      {
+        id: uuid(),
+        sprite: Buggy,
+        name: 'Buggy 2',
+        x: 700,
+        y: 600,
+        width: 64,
+        height: 64,
+        orientation: 160,
+        targetX: 0,
+        targetY: 0,
+        moving: false,
+        canMove: true,
+      },
+      {
+        sprite: Powerplant,
+        name: 'Power Plant',
+        id: uuid(),
+        x: 256,
+        y: 256,
+        width: 256,
+        height: 256,
+        orientation: 0,
+        targetX: 0,
+        targetY: 0,
+        moving: false,
+        canMove: false,
+      },
+      {
+        sprite: SolarPanels,
+        name: 'Solar Panels',
+        id: uuid(),
+        x: 512,
+        y: 256,
+        width: 128,
+        height: 128,
+        orientation: 0,
+        targetX: 0,
+        targetY: 0,
+        moving: false,
+        canMove: false,
+      },
+    ]));
+
+    const selectedEntityId: Ref<string | null> = ref(null);
+
+    const selectedEntity: ComputedRef<Entityish | null> = computed(() => {
+      if (selectedEntityId.value === null) return null;
+      return entities.get(selectedEntityId.value) || null;
     });
 
-    const building = reactive({
-      id: 2,
-      x: 200,
-      y: 350,
-    });
-
-    const selectedEntityId = ref(-1);
-
-    const selectVehicle = () => {
-      selectedEntityId.value = vehicle.id;
-    };
-
-    const selectBuilding = () => {
-      selectedEntityId.value = building.id;
+    const selectEntity = (entity: { id: string }) => {
+      selectedEntityId.value = entity.id;
     };
 
     const clickMap = () => {
-      selectedEntityId.value = -1;
+      selectedEntityId.value = null;
     };
 
     const update = (delta: number) => {
       const t1 = new Date();
 
-      if (vehicle.moving) {
-        const dx = vehicle.targetX - vehicle.x;
-        const dy = vehicle.targetY - vehicle.y;
+      entities.forEach((entity) => {
+        if (entity.moving) {
+          const dx = entity.targetX - entity.x;
+          const dy = entity.targetY - entity.y;
 
-        const len = Math.sqrt(dx * dx + dy * dy);
-        const speed = SPEED * delta;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          const speed = SPEED * delta;
 
-        if (len >= speed) {
-          const nx = dx / len;
-          const ny = dy / len;
+          if (len >= speed) {
+            const nx = dx / len;
+            const ny = dy / len;
 
-          vehicle.x += nx * speed;
-          vehicle.y += ny * speed;
-        } else {
-          vehicle.x = vehicle.targetX;
-          vehicle.y = vehicle.targetY;
-          vehicle.moving = false;
+            entity.x += nx * speed;
+            entity.y += ny * speed;
+          } else {
+            entity.x = entity.targetX;
+            entity.y = entity.targetY;
+            entity.moving = false;
+          }
         }
-      }
+      });
 
       requestAnimationFrame(() => {
         const t2 = new Date();
@@ -123,25 +185,28 @@ export default {
     };
 
     const actionMap = (event: MouseEvent) => {
-      if (selectedEntityId.value !== -1) {
-        const dx = event.offsetX - vehicle.x;
-        const dy = event.offsetY - vehicle.y;
+      if (selectedEntityId.value !== null) {
+        const entity = selectedEntity.value;
 
-        vehicle.orientation = rad2deg(Math.atan2(-dx, dy));
-        vehicle.targetX = event.offsetX;
-        vehicle.targetY = event.offsetY;
-        vehicle.moving = true;
+        if (entity !== null && entity.canMove) {
+          const dx = event.offsetX - entity.x;
+          const dy = event.offsetY - entity.y;
+
+          entity.orientation = rad2deg(Math.atan2(-dx, dy));
+          entity.targetX = event.offsetX;
+          entity.targetY = event.offsetY;
+          entity.moving = true;
+        }
       }
     };
 
     onMounted(() => update(0));
 
     return {
-      vehicle,
-      building,
-      selectVehicle,
-      selectBuilding,
+      entities,
+      selectEntity,
       selectedEntityId,
+      selectedEntity,
       clickMap,
       actionMap,
     };

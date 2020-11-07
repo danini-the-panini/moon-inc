@@ -17,7 +17,7 @@ export default {
     width: Number,
     height: Number,
     orientation: Number,
-    image: String,
+    sprite: String,
   },
   setup(props: {
     selected: boolean;
@@ -26,7 +26,7 @@ export default {
     width: number;
     height: number;
     orientation: number;
-    image: string;
+    sprite: string;
   }) {
     const containerStyle = computed(() => ({
       transform: `translate(-50%, -50%) translate(${props.x}px, ${props.y}px)`,
@@ -36,7 +36,7 @@ export default {
 
     const imageStyle = computed(() => ({
       transform: `rotate(${props.orientation}deg)`,
-      backgroundImage: `url(${props.image})`,
+      backgroundImage: `url(${props.sprite})`,
     }));
 
     return {
@@ -51,7 +51,7 @@ export default {
 .container {
   width: 4rem;
   height: 4rem;
-  position: relative;
+  position: absolute;
 
   &.selected {
     &::before {
