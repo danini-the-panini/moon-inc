@@ -13,7 +13,7 @@
         <Entity
           v-for="[id, entity] in entities"
           :key="id"
-          v-bind="entity"
+          :entity="entity"
           :selected="entity.id === selectedEntityId"
           @click.left.stop="selectEntity(entity)"
         />
@@ -46,25 +46,32 @@ import Powerplant from '@/assets/powerplant.png';
 import SolarPanels from '@/assets/solar-panels.png';
 import BaseEntity from '@/classes/BaseEntity';
 import MovementSystem from '@/systems/MovementSystem';
+import PowerGeneratingSystem from '@/systems/PowerGeneratingSystem';
+import PowerStoringSystem from '@/systems/PowerStoringSystem';
+import GameMethods from '@/classes/GameMethods';
 
-const SPEED = 0.3;
-
-function indexById(array: Array<BaseEntity>) {
-  const map: Map<string, BaseEntity> = new Map();
-
-  array.forEach((item) => {
-    map.set(item.id, item);
-  });
-
-  return map;
-}
+const SPEED = 300;
 
 export default {
   components: {
     Entity,
   },
   setup() {
-    const buggy1 = new BaseEntity({
+    const entities = reactive(new Map<string, BaseEntity>());
+
+    const game: GameMethods = {
+      findEntities(finder) {
+        const results: Array<BaseEntity> = [];
+
+        entities.forEach((entity) => {
+          if (finder(entity)) results.push(entity);
+        });
+
+        return results;
+      },
+    };
+
+    const buggy1 = new BaseEntity(game, {
       sprite: Buggy,
       name: 'Buggy 1',
       x: 500,
@@ -75,8 +82,9 @@ export default {
       areaOfEffect: 0,
     });
     buggy1.systems.set('movement', new MovementSystem(buggy1, { speed: SPEED }));
+    entities.set(buggy1.id, buggy1);
 
-    const buggy2 = new BaseEntity({
+    const buggy2 = new BaseEntity(game, {
       sprite: Buggy,
       name: 'Buggy 1',
       x: 700,
@@ -87,8 +95,9 @@ export default {
       areaOfEffect: 0,
     });
     buggy2.systems.set('movement', new MovementSystem(buggy2, { speed: SPEED }));
+    entities.set(buggy2.id, buggy2);
 
-    const powerplant = new BaseEntity({
+    const powerplant = new BaseEntity(game, {
       sprite: Powerplant,
       name: 'Power Plant',
       x: 256,
@@ -98,8 +107,10 @@ export default {
       orientation: 0,
       areaOfEffect: 384,
     });
+    powerplant.systems.set('power-storing', new PowerStoringSystem(powerplant, { capacity: 100 }));
+    entities.set(powerplant.id, powerplant);
 
-    const solarPanels = new BaseEntity({
+    const solarPanels = new BaseEntity(game, {
       sprite: SolarPanels,
       name: 'Solar Panels',
       x: 512,
@@ -109,13 +120,8 @@ export default {
       orientation: 0,
       areaOfEffect: 0,
     });
-
-    const entities = reactive(indexById([
-      buggy1,
-      buggy2,
-      powerplant,
-      solarPanels,
-    ]));
+    solarPanels.systems.set('power-generating', new PowerGeneratingSystem(solarPanels, { rate: 10 }));
+    entities.set(solarPanels.id, solarPanels);
 
     const selectedEntityId: Ref<string | null> = ref(null);
 
@@ -141,7 +147,7 @@ export default {
 
       requestAnimationFrame(() => {
         const t2 = new Date();
-        update(t2.getTime() - t1.getTime());
+        update((t2.getTime() - t1.getTime()) / 1000);
       });
     };
 

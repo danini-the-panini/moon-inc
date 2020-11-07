@@ -4,11 +4,8 @@ import BaseSystem from './BaseSystem';
 
 export default class MovementSystem extends BaseSystem {
   moving: boolean;
-
   targetX: number;
-
   targetY: number;
-
   speed: number;
 
   constructor(entity: BaseEntity, attributes: {

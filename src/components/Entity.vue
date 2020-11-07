@@ -3,48 +3,49 @@
     :class="{ container: true, selected: selected }"
     :style="containerStyle">
     <div class="image" :style="imageStyle"></div>
-    <div v-if="selected && areaOfEffect > 0" class="aoe" :style="aoeStyle"></div>
+    <div v-if="selected && entity.areaOfEffect > 0" class="aoe" :style="aoeStyle"></div>
+    <div v-for="[systemName, system] in entity.systems" :key="systemName">
+      <component
+        :is="system.overlayComponent"
+        :system="system"
+      ></component>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { computed } from 'vue';
+import BaseEntity from '@/classes/BaseEntity';
+import NoOverlay from './NoOverlay.vue';
+import PowerStoringOverlay from './PowerStoringOverlay.vue';
 
 export default {
+  components: {
+    NoOverlay,
+    PowerStoringOverlay,
+  },
   props: {
     selected: Boolean,
-    x: Number,
-    y: Number,
-    width: Number,
-    height: Number,
-    orientation: Number,
-    sprite: String,
-    areaOfEffect: Number,
+    entity: BaseEntity,
   },
   setup(props: {
     selected: boolean;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    orientation: number;
-    sprite: string;
-    areaOfEffect: number;
+    entity: BaseEntity;
   }) {
     const containerStyle = computed(() => ({
-      transform: `translate(-50%, -50%) translate(${props.x}px, ${props.y}px)`,
-      width: `${props.width}px`,
-      height: `${props.height}px`,
+      transform: `translate(-50%, -50%) translate(${props.entity.x}px, ${props.entity.y}px)`,
+      width: `${props.entity.width}px`,
+      height: `${props.entity.height}px`,
     }));
 
     const imageStyle = computed(() => ({
-      transform: `rotate(${props.orientation}deg)`,
-      backgroundImage: `url(${props.sprite})`,
+      transform: `rotate(${props.entity.orientation}deg)`,
+      backgroundImage: `url(${props.entity.sprite})`,
     }));
 
     const aoeStyle = computed(() => ({
-      width: `${props.areaOfEffect * 2}px`,
-      height: `${props.areaOfEffect * 2}px`,
+      width: `${props.entity.areaOfEffect * 2}px`,
+      height: `${props.entity.areaOfEffect * 2}px`,
     }));
 
     return {

@@ -1,7 +1,8 @@
 import BaseEntity from '@/classes/BaseEntity';
-import System from './System';
+import { Component } from 'vue';
+import NoOverlay from '@/components/NoOverlay.vue';
 
-export default abstract class BaseSystem implements System {
+export default abstract class BaseSystem {
   entity: BaseEntity;
 
   constructor(entity: BaseEntity) {
@@ -11,4 +12,8 @@ export default abstract class BaseSystem implements System {
   update(delta: number): void { }
 
   performActionOnMap(x: number, y: number): void { }
+
+  get overlayComponent(): string {
+    return 'NoOverlay';
+  }
 }
