@@ -39,15 +39,13 @@ import {
   Ref,
   ref,
 } from 'vue';
-import { v4 as uuid } from 'uuid';
 
 import Entity from '@/components/Entity.vue';
 import Buggy from '@/assets/buggy.png';
 import Powerplant from '@/assets/powerplant.png';
 import SolarPanels from '@/assets/solar-panels.png';
 import BaseEntity from '@/classes/BaseEntity';
-import VehicleEntity from '@/classes/VehicleEntity';
-import BuildingEntity from '@/classes/BuildingEntity';
+import MovementSystem from '@/systems/MovementSystem';
 
 const SPEED = 0.3;
 
@@ -66,47 +64,57 @@ export default {
     Entity,
   },
   setup() {
+    const buggy1 = new BaseEntity({
+      sprite: Buggy,
+      name: 'Buggy 1',
+      x: 500,
+      y: 500,
+      width: 64,
+      height: 64,
+      orientation: 30,
+      areaOfEffect: 0,
+    });
+    buggy1.systems.set('movement', new MovementSystem(buggy1, { speed: SPEED }));
+
+    const buggy2 = new BaseEntity({
+      sprite: Buggy,
+      name: 'Buggy 1',
+      x: 700,
+      y: 600,
+      width: 64,
+      height: 64,
+      orientation: 160,
+      areaOfEffect: 0,
+    });
+    buggy2.systems.set('movement', new MovementSystem(buggy2, { speed: SPEED }));
+
+    const powerplant = new BaseEntity({
+      sprite: Powerplant,
+      name: 'Power Plant',
+      x: 256,
+      y: 256,
+      width: 256,
+      height: 256,
+      orientation: 0,
+      areaOfEffect: 384,
+    });
+
+    const solarPanels = new BaseEntity({
+      sprite: SolarPanels,
+      name: 'Solar Panels',
+      x: 512,
+      y: 256,
+      width: 128,
+      height: 128,
+      orientation: 0,
+      areaOfEffect: 0,
+    });
+
     const entities = reactive(indexById([
-      new VehicleEntity({
-        sprite: Buggy,
-        name: 'Buggy 1',
-        x: 500,
-        y: 500,
-        width: 64,
-        height: 64,
-        orientation: 30,
-        areaOfEffect: 0,
-        speed: SPEED,
-      }),
-      new VehicleEntity({
-        sprite: Buggy,
-        name: 'Buggy 2',
-        x: 700,
-        y: 600,
-        width: 64,
-        height: 64,
-        orientation: 160,
-        areaOfEffect: 0,
-        speed: SPEED,
-      }),
-      new BuildingEntity({
-        sprite: Powerplant,
-        name: 'Power Plant',
-        x: 256,
-        y: 256,
-        width: 256,
-        height: 256,
-        areaOfEffect: 384,
-      }),
-      new BuildingEntity({
-        sprite: SolarPanels,
-        name: 'Solar Panels',
-        x: 512,
-        y: 256,
-        width: 128,
-        height: 128,
-        areaOfEffect: 0,
-      }),
+      buggy1,
+      buggy2,
+      powerplant,
+      solarPanels,
     ]));
 
     const selectedEntityId: Ref<string | null> = ref(null);
