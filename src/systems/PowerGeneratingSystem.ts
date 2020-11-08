@@ -11,7 +11,12 @@ export default class PowerGeneratingSystem extends BaseSystem {
   }
 
   update(delta: number) {
-    const storingEntities = this.entity.game.findEntities((e: BaseEntity) => e.hasSystem('power-storing') && e.withinAreaOfEffect(this.entity));
+    const storingEntities = this.entity.game.findEntities((e: BaseEntity) => (
+      e.hasSystem('power-storing') && (
+        e.withinAreaOfEffect(this.entity)
+          || this.entity.connectedVia(e, 'power-transfer')
+      )
+    ));
 
     if (storingEntities.length === 0) return;
 

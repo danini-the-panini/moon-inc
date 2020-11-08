@@ -64,4 +64,25 @@ export default class BaseEntity {
 
     return dx * dx + dy * dy <= this.areaOfEffect * this.areaOfEffect;
   }
+
+  entitiesInAreaOfEffect() {
+    return this.game.findEntities((otherEntity) => (
+      otherEntity !== this && this.withinAreaOfEffect(otherEntity)
+    ));
+  }
+
+  inAreaOfEffectOfEntities() {
+    return this.game.findEntities((otherEntity) => (
+      otherEntity !== this && otherEntity.withinAreaOfEffect(this)
+    ));
+  }
+
+  connectedVia(otherEntity: BaseEntity, systemName: string, visited: BaseEntity[] = []): boolean {
+    return this.inAreaOfEffectOfEntities().find((e) => (
+      e === otherEntity
+        || (e.hasSystem(systemName)
+          && !visited.includes(e)
+          && e.connectedVia(otherEntity, systemName, [...visited, this]))
+    )) !== undefined;
+  }
 }

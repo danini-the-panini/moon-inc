@@ -18,11 +18,13 @@ import { computed } from 'vue';
 import BaseEntity from '@/classes/BaseEntity';
 import NoOverlay from './NoOverlay.vue';
 import PowerStoringOverlay from './PowerStoringOverlay.vue';
+import PowerTransferOverlay from './PowerTransferOverlay.vue';
 
 export default {
   components: {
     NoOverlay,
     PowerStoringOverlay,
+    PowerTransferOverlay,
   },
   props: {
     selected: Boolean,

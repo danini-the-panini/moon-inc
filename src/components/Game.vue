@@ -44,10 +44,12 @@ import Entity from '@/components/Entity.vue';
 import Buggy from '@/assets/buggy.png';
 import Powerplant from '@/assets/powerplant.png';
 import SolarPanels from '@/assets/solar-panels.png';
+import Pylon from '@/assets/pylon.png';
 import BaseEntity from '@/classes/BaseEntity';
 import MovementSystem from '@/systems/MovementSystem';
 import PowerGeneratingSystem from '@/systems/PowerGeneratingSystem';
 import PowerStoringSystem from '@/systems/PowerStoringSystem';
+import PowerTransferSystem from '@/systems/PowerTransferSystem';
 import GameMethods from '@/classes/GameMethods';
 
 const SPEED = 300;
@@ -113,7 +115,7 @@ export default {
     const solarPanels = new BaseEntity(game, {
       sprite: SolarPanels,
       name: 'Solar Panels',
-      x: 512,
+      x: 1536,
       y: 256,
       width: 128,
       height: 128,
@@ -122,6 +124,21 @@ export default {
     });
     solarPanels.systems.set('power-generating', new PowerGeneratingSystem(solarPanels, { rate: 10 }));
     entities.set(solarPanels.id, solarPanels);
+
+    [0, 1, 2, 3].forEach((x) => {
+      const pylon = new BaseEntity(game, {
+        sprite: Pylon,
+        name: `Pylon ${x + 1}`,
+        x: 512 + x * 256,
+        y: 256 + x * 64,
+        width: 64,
+        height: 128,
+        orientation: 0,
+        areaOfEffect: 384,
+      });
+      pylon.systems.set('power-transfer', new PowerTransferSystem(pylon));
+      entities.set(pylon.id, pylon);
+    });
 
     const selectedEntityId: Ref<string | null> = ref(null);
 
