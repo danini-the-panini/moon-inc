@@ -1,5 +1,9 @@
 <template>
-  <div class="game">
+  <GlobalEvents
+    @keydown.prevent="keydown"
+    @keyup.prevent="keyup"
+  />
+  <div class="game" >
     <header>
       <h1>Moon Inc</h1>
     </header>
@@ -7,6 +11,7 @@
       <div class="left-sidebar"></div>
       <div
         class="map"
+        :style="mapStyle"
         @click.left.stop="clickMap"
         @click.right.stop.prevent="actionMap"
       >
@@ -15,6 +20,7 @@
           :key="id"
           :entity="entity"
           :selected="entity.id === selectedEntityId"
+          :camera="camera"
           @click.left.stop="selectEntity(entity)"
         />
       </div>
@@ -39,6 +45,7 @@ import {
   Ref,
   ref,
 } from 'vue';
+import { GlobalEvents } from 'vue-global-events';
 
 import Entity from '@/components/Entity.vue';
 import Buggy from '@/assets/buggy.png';
@@ -53,10 +60,12 @@ import PowerTransferSystem from '@/systems/PowerTransferSystem';
 import GameMethods from '@/classes/GameMethods';
 
 const SPEED = 300;
+const CAMERA_SPEED = 500;
 
 export default {
   components: {
     Entity,
+    GlobalEvents,
   },
   setup() {
     const entities = reactive(new Map<string, BaseEntity>());
@@ -72,6 +81,21 @@ export default {
         return results;
       },
     };
+
+    const camera = reactive([0, 0]);
+    const cameraMovement: {
+      ArrowUp: boolean;
+      ArrowRight: boolean;
+      ArrowDown: boolean;
+      ArrowLeft: boolean;
+    } = {
+      ArrowUp: false,
+      ArrowRight: false,
+      ArrowDown: false,
+      ArrowLeft: false,
+    };
+
+    const mapStyle = computed(() => ({ backgroundPosition: `${camera[0]}px ${camera[1]}px` }));
 
     const buggy1 = new BaseEntity(game, {
       sprite: Buggy,
@@ -171,6 +195,27 @@ export default {
     const update = (delta: number) => {
       const t1 = new Date();
 
+      Object
+        .entries(cameraMovement)
+        .filter(([, isDown]) => isDown)
+        .forEach(([direction]) => {
+          switch (direction) {
+            case 'ArrowUp':
+              camera[1] += CAMERA_SPEED * delta;
+              break;
+            case 'ArrowRight':
+              camera[0] -= CAMERA_SPEED * delta;
+              break;
+            case 'ArrowDown':
+              camera[1] -= CAMERA_SPEED * delta;
+              break;
+            case 'ArrowLeft':
+              camera[0] += CAMERA_SPEED * delta;
+              break;
+            default:
+          }
+        });
+
       entities.forEach((entity) => {
         entity.update(delta);
       });
@@ -186,20 +231,48 @@ export default {
         const entity = selectedEntity.value;
 
         if (entity !== null) {
-          entity.performActionOnMap(event.offsetX, event.offsetY);
+          entity.performActionOnMap(event.offsetX - camera[0], event.offsetY - camera[1]);
         }
       }
     };
 
     onMounted(() => update(0));
 
+    const keydown = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'ArrowUp':
+        case 'ArrowRight':
+        case 'ArrowDown':
+        case 'ArrowLeft':
+          cameraMovement[event.key] = true;
+          break;
+        default:
+      }
+    };
+
+    const keyup = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'ArrowUp':
+        case 'ArrowRight':
+        case 'ArrowDown':
+        case 'ArrowLeft':
+          cameraMovement[event.key] = false;
+          break;
+        default:
+      }
+    };
+
     return {
+      mapStyle,
       entities,
       selectEntity,
       selectedEntityId,
       selectedEntity,
       clickMap,
       actionMap,
+      camera,
+      keydown,
+      keyup,
     };
   },
 };
@@ -242,6 +315,12 @@ main {
   flex-grow: 1;
   background-image: url('../assets/lunar-rock.png');
   position: relative;
+  overflow: hidden;
+}
+
+header, footer, .left-sidebar, .right-sidebar {
+  z-index: 1;
+  background: white;
 }
 
 .left-sidebar, .right-sidebar {

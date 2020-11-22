@@ -15,7 +15,8 @@
     "sass": "^1.28.0",
     "sass-loader": "^10.0.5",
     "uuid": "^8.3.1",
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "vue-global-events": "^2.1.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.19",

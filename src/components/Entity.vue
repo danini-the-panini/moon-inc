@@ -29,13 +29,15 @@ export default {
   props: {
     selected: Boolean,
     entity: BaseEntity,
+    camera: Array,
   },
   setup(props: {
     selected: boolean;
     entity: BaseEntity;
+    camera: number[];
   }) {
     const containerStyle = computed(() => ({
-      transform: `translate(-50%, -50%) translate(${props.entity.x}px, ${props.entity.y}px)`,
+      transform: `translate(-50%, -50%) translate(${props.entity.x + props.camera[0]}px, ${props.entity.y + props.camera[1]}px)`,
       width: `${props.entity.width}px`,
       height: `${props.entity.height}px`,
     }));
