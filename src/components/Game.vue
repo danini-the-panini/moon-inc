@@ -114,7 +114,7 @@ export default {
 
     const solarPanels = new BaseEntity(game, {
       sprite: SolarPanels,
-      name: 'Solar Panels',
+      name: 'Solar Panels 1',
       x: 1536,
       y: 256,
       width: 128,
@@ -124,6 +124,19 @@ export default {
     });
     solarPanels.systems.set('power-generating', new PowerGeneratingSystem(solarPanels, { rate: 10 }));
     entities.set(solarPanels.id, solarPanels);
+
+    const solarPanels2 = new BaseEntity(game, {
+      sprite: SolarPanels,
+      name: 'Solar Panels 2',
+      x: 960,
+      y: 128,
+      width: 128,
+      height: 128,
+      orientation: 0,
+      areaOfEffect: 0,
+    });
+    solarPanels2.systems.set('power-generating', new PowerGeneratingSystem(solarPanels2, { rate: 10 }));
+    entities.set(solarPanels2.id, solarPanels2);
 
     [0, 1, 2, 3].forEach((x) => {
       const pylon = new BaseEntity(game, {
