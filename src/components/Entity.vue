@@ -17,13 +17,15 @@
 import { computed } from 'vue';
 import BaseEntity from '@/classes/BaseEntity';
 import NoOverlay from './NoOverlay.vue';
-import PowerStoringOverlay from './PowerStoringOverlay.vue';
+import StoringOverlay from './StoringOverlay.vue';
+import DepositOverlay from './DepositOverlay.vue';
 import PowerTransferOverlay from './PowerTransferOverlay.vue';
 
 export default {
   components: {
     NoOverlay,
-    PowerStoringOverlay,
+    StoringOverlay,
+    DepositOverlay,
     PowerTransferOverlay,
   },
   props: {

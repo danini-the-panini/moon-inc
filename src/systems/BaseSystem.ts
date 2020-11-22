@@ -1,6 +1,4 @@
 import BaseEntity from '@/classes/BaseEntity';
-import { Component } from 'vue';
-import NoOverlay from '@/components/NoOverlay.vue';
 
 export default abstract class BaseSystem {
   entity: BaseEntity;

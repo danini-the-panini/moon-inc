@@ -51,12 +51,16 @@ import Entity from '@/components/Entity.vue';
 import Buggy from '@/assets/buggy.png';
 import Powerplant from '@/assets/powerplant.png';
 import SolarPanels from '@/assets/solar-panels.png';
+import Regolith from '@/assets/Regolith.png';
+import RegolithQuarry from '@/assets/RegolithQuarry.png';
 import Pylon from '@/assets/pylon.png';
 import BaseEntity from '@/classes/BaseEntity';
 import MovementSystem from '@/systems/MovementSystem';
 import PowerGeneratingSystem from '@/systems/PowerGeneratingSystem';
 import PowerStoringSystem from '@/systems/PowerStoringSystem';
 import PowerTransferSystem from '@/systems/PowerTransferSystem';
+import DepositSystem from '@/systems/DepositSystem';
+import QuarrySystem from '@/systems/QuarrySystem';
 import GameMethods from '@/classes/GameMethods';
 
 const SPEED = 300;
@@ -176,6 +180,45 @@ export default {
       pylon.systems.set('power-transfer', new PowerTransferSystem(pylon));
       entities.set(pylon.id, pylon);
     });
+
+    const regolithDeposit1 = new BaseEntity(game, {
+      sprite: Regolith,
+      name: 'Regolith Deposit 1',
+      x: 1536,
+      y: 1536,
+      width: 128,
+      height: 128,
+      orientation: 0,
+      areaOfEffect: 0,
+    });
+    regolithDeposit1.systems.set('deposit', new DepositSystem(regolithDeposit1, { value: 1000, type: 'Regolith' }));
+    entities.set(regolithDeposit1.id, regolithDeposit1);
+
+    const regolithDeposit2 = new BaseEntity(game, {
+      sprite: Regolith,
+      name: 'Regolith Deposit 2',
+      x: 1664,
+      y: 1536,
+      width: 128,
+      height: 128,
+      orientation: 0,
+      areaOfEffect: 0,
+    });
+    regolithDeposit2.systems.set('deposit', new DepositSystem(regolithDeposit2, { value: 1000, type: 'Regolith' }));
+    entities.set(regolithDeposit2.id, regolithDeposit2);
+
+    const regolithQuarry = new BaseEntity(game, {
+      sprite: RegolithQuarry,
+      name: 'Regolith Quarry',
+      x: 1600,
+      y: 1408,
+      width: 128,
+      height: 128,
+      orientation: 0,
+      areaOfEffect: 256,
+    });
+    regolithQuarry.systems.set('quarry', new QuarrySystem(regolithQuarry, { rate: 10, capacity: 5000, type: 'Regolith' }));
+    entities.set(regolithQuarry.id, regolithQuarry);
 
     const selectedEntityId: Ref<string | null> = ref(null);
 

@@ -5,15 +5,15 @@
 </template>
 
 <script lang="ts">
-import PowerStoringSystem from '@/systems/PowerStoringSystem';
+import StoringSystem from '@/systems/StoringSystem';
 import { computed } from 'vue';
 
 export default {
   props: {
-    system: PowerStoringSystem,
+    system: StoringSystem,
   },
   setup(props: {
-    system: PowerStoringSystem;
+    system: StoringSystem;
   }) {
     const barStyle = computed(() => ({
       width: `${(props.system.stored / props.system.capacity) * 100}%`,
